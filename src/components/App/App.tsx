@@ -1,52 +1,41 @@
-import { Toaster } from "react-hot-toast";
-import SearchBar from "../SearchBar/SearchBar";
-
-import type { Movie } from "../../types/movie";
-import axios from "axios";
-
-import styles from "./App.module.css";
 import { useState } from "react";
+import { Toaster } from "react-hot-toast";
+
+import SearchBar from "../SearchBar/SearchBar";
 import MovieGrid from "../MovieGrid/MovieGrid";
 import Loader from "../Loader/Loader";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
 
-interface MoviesHttpResponse {
-  results: Movie[];
-}
+import { fetchMovies } from "../../services/movieService";
+import type { Movie } from "../../types/movie";
 
-const myKey = import.meta.env.VITE_TMDB_TOKEN;
+import styles from "./App.module.css";
 
 const App = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isError, setIsError] = useState<boolean>(false);
 
   const handleSearch = async (query: string) => {
-    setIsLoading(true);
-    const response = await axios.get<MoviesHttpResponse>(
-      `https://api.themoviedb.org/3/search/movie`,
-      {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${myKey}`,
-        },
-        params: {
-          query,
-          language: "en-US",
-          page: 1,
-        },
-      },
-    );
-    setIsLoading(false);
-    setMovies(response.data.results);
+    try {
+      setIsLoading(true);
+      const data = await fetchMovies(query);
+      setMovies(data);
+    } catch {
+      setIsError(true);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <>
+    <div className={styles.app}>
       <SearchBar onSubmit={handleSearch} />
       {isLoading && <Loader />}
+      {isError && <ErrorMessage />}
       {movies.length > 0 && <MovieGrid movies={movies} />}
-
       <Toaster />
-    </>
+    </div>
   );
 };
 
