@@ -7,6 +7,7 @@ import axios from "axios";
 import styles from "./App.module.css";
 import { useState } from "react";
 import MovieGrid from "../MovieGrid/MovieGrid";
+import Loader from "../Loader/Loader";
 
 interface MoviesHttpResponse {
   results: Movie[];
@@ -14,12 +15,12 @@ interface MoviesHttpResponse {
 
 const myKey = import.meta.env.VITE_TMDB_TOKEN;
 
-
 const App = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
-  console.log(movies)
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleSearch = async (query: string) => {
+    setIsLoading(true);
     const response = await axios.get<MoviesHttpResponse>(
       `https://api.themoviedb.org/3/search/movie`,
       {
@@ -34,12 +35,16 @@ const App = () => {
         },
       },
     );
-    setMovies(response.data.results)
+    setIsLoading(false);
+    setMovies(response.data.results);
   };
+
   return (
     <>
       <SearchBar onSubmit={handleSearch} />
-       <MovieGrid movies={movies} /> 
+      {isLoading && <Loader />}
+      {movies.length > 0 && <MovieGrid movies={movies} />}
+
       <Toaster />
     </>
   );
