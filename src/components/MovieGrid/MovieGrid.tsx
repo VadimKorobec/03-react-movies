@@ -14,10 +14,10 @@ const MovieGrid = ({ movies }: MovieGridProps) => {
             <img
               className={styles.image}
               src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
-              alt="movie title"
+              alt={item.title}
               loading="lazy"
             />
-            <h2 className={styles.title}>Movie title</h2>
+            <h2 className={styles.title}>{item.title}</h2>
           </div>
         </li>
       ))}

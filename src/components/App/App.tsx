@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 
 import SearchBar from "../SearchBar/SearchBar";
 import MovieGrid from "../MovieGrid/MovieGrid";
@@ -16,11 +16,20 @@ const App = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
 
+  console.log('app render')
+
   const handleSearch = async (query: string) => {
     try {
+      setIsError(false)
       setIsLoading(true);
+      setMovies([]);
+      
       const data = await fetchMovies(query);
       setMovies(data);
+      
+      if (data.length === 0) {
+        toast.error("No movies found for your request.");
+      }
     } catch {
       setIsError(true);
     } finally {
