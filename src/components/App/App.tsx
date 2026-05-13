@@ -10,23 +10,23 @@ import { fetchMovies } from "../../services/movieService";
 import type { Movie } from "../../types/movie";
 
 import styles from "./App.module.css";
+import MovieModal from "../MovieModal/MovieModal";
 
 const App = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
-
-  console.log('app render')
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(true);
 
   const handleSearch = async (query: string) => {
     try {
-      setIsError(false)
+      setIsError(false);
       setIsLoading(true);
       setMovies([]);
-      
+
       const data = await fetchMovies(query);
       setMovies(data);
-      
+
       if (data.length === 0) {
         toast.error("No movies found for your request.");
       }
@@ -37,12 +37,17 @@ const App = () => {
     }
   };
 
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+  }
+
   return (
     <div className={styles.app}>
       <SearchBar onSubmit={handleSearch} />
       {isLoading && <Loader />}
       {isError && <ErrorMessage />}
       {movies.length > 0 && <MovieGrid movies={movies} />}
+      { isModalOpen && <MovieModal onClose={handleCloseModal} />}
       <Toaster />
     </div>
   );
