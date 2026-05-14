@@ -16,7 +16,7 @@ const App = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(true);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
   const handleSearch = async (query: string) => {
     try {
@@ -37,17 +37,25 @@ const App = () => {
     }
   };
 
+  const handleOpenModal = (movie: Movie) => {
+    setSelectedMovie(movie);
+  };
+
   const handleCloseModal = () => {
-    setIsModalOpen(false)
-  }
+    setSelectedMovie(null)
+  };
 
   return (
     <div className={styles.app}>
       <SearchBar onSubmit={handleSearch} />
       {isLoading && <Loader />}
       {isError && <ErrorMessage />}
-      {movies.length > 0 && <MovieGrid movies={movies} />}
-      { isModalOpen && <MovieModal onClose={handleCloseModal} />}
+      {movies.length > 0 && (
+        <MovieGrid movies={movies} onSelect={handleOpenModal} />
+      )}
+      {selectedMovie && (
+        <MovieModal movie={selectedMovie} onClose={handleCloseModal} />
+      )}
       <Toaster />
     </div>
   );
